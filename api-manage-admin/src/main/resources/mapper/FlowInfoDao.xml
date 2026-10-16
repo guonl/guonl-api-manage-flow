@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guonl.dao.FlowInfoDao">
+
+    <sql id="cols">
+        flow_id AS flowId,
+        flow_name AS flowName,
+        flow_desc AS flowDesc,
+        project_id AS projectId,
+        flow_status AS flowStatus,
+        create_time AS createTime,
+        update_time AS updateTime,
+        del_flag AS delFlag
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="flowId">
+        INSERT INTO flow_info (flow_name, flow_desc, project_id, flow_status)
+        VALUES (#{flowName}, #{flowDesc}, #{projectId}, #{flowStatus})
+    </insert>
+
+    <update id="update">
+        UPDATE flow_info
+        SET flow_name = #{flowName},
+            flow_desc = #{flowDesc},
+            flow_status = #{flowStatus}
+        WHERE flow_id = #{flowId} AND del_flag = '0'
+    </update>
+
+    <update id="deleteById">
+        UPDATE flow_info SET del_flag = '1' WHERE flow_id = #{flowId}
+    </update>
+
+    <select id="selectById" resultType="com.guonl.entity.FlowInfo">
+        SELECT <include refid="cols"/>
+        FROM flow_info
+        WHERE flow_id = #{flowId} AND del_flag = '0'
+    </select>
+
+    <select id="selectPage" resultType="com.guonl.entity.FlowInfo">
+        SELECT <include refid="cols"/>
+        FROM flow_info
+        <where>
+            del_flag = '0'
+            <if test="projectId != null">AND project_id = #{projectId}</if>
+            <if test="keyword != null and keyword != ''">AND flow_name LIKE CONCAT('%', #{keyword}, '%')</if>
+        </where>
+        ORDER BY flow_id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countPage" resultType="int">
+        SELECT COUNT(*)
+        FROM flow_info
+        <where>
+            del_flag = '0'
+            <if test="projectId != null">AND project_id = #{projectId}</if>
+            <if test="keyword != null and keyword != ''">AND flow_name LIKE CONCAT('%', #{keyword}, '%')</if>
+        </where>
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM flow_info WHERE del_flag = '0'
+    </select>
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guonl.dao.ApiEnvDao">
+
+    <sql id="cols">
+        env_id AS envId, project_id AS projectId, env_name AS envName, base_url AS baseUrl,
+        env_desc AS envDesc, is_default AS isDefault, create_time AS createTime, update_time AS updateTime, del_flag AS delFlag
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="envId">
+        INSERT INTO api_env (project_id, env_name, base_url, env_desc, is_default, del_flag)
+        VALUES (#{projectId}, #{envName}, #{baseUrl}, #{envDesc}, COALESCE(#{isDefault}, 0), 0)
+    </insert>
+
+    <update id="update">
+        UPDATE api_env
+        <set>
+            <if test="envName != null">env_name = #{envName},</if>
+            <if test="baseUrl != null">base_url = #{baseUrl},</if>
+            <if test="envDesc != null">env_desc = #{envDesc},</if>
+            <if test="isDefault != null">is_default = #{isDefault},</if>
+        </set>
+        WHERE env_id = #{envId} AND del_flag = 0
+    </update>
+
+    <update id="logicDeleteById">
+        UPDATE api_env SET del_flag = 1 WHERE env_id = #{envId}
+    </update>
+
+    <select id="selectById" resultType="com.guonl.entity.ApiEnv">
+        SELECT <include refid="cols"/> FROM api_env
+        WHERE env_id = #{envId} AND del_flag = 0
+    </select>
+
+    <select id="selectByProject" resultType="com.guonl.entity.ApiEnv">
+        SELECT <include refid="cols"/> FROM api_env
+        WHERE project_id = #{projectId} AND del_flag = 0
+        ORDER BY is_default DESC, env_id
+    </select>
+
+    <update id="clearDefault">
+        UPDATE api_env SET is_default = 0
+        WHERE project_id = #{projectId} AND del_flag = 0
+        <if test="excludeEnvId != null">AND env_id != #{excludeEnvId}</if>
+    </update>
+
+</mapper>

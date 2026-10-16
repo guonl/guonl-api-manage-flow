@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guonl.dao.FlowRunDao">
+
+    <sql id="cols">
+        run_id AS runId,
+        flow_id AS flowId,
+        flow_name_snapshot AS flowNameSnapshot,
+        trigger_type AS triggerType,
+        init_vars AS initVars,
+        context_snapshot AS contextSnapshot,
+        run_status AS runStatus,
+        total_cost_ms AS totalCostMs,
+        error_msg AS errorMsg,
+        operator AS operator,
+        create_time AS createTime,
+        update_time AS updateTime
+    </sql>
+
+    <sql id="stepCols">
+        run_step_id AS runStepId,
+        run_id AS runId,
+        step_id AS stepId,
+        step_name AS stepName,
+        sort_order AS sortOrder,
+        request_snapshot AS requestSnapshot,
+        response_status AS responseStatus,
+        response_body AS responseBody,
+        extract_result AS extractResult,
+        assert_result AS assertResult,
+        step_status AS stepStatus,
+        cost_ms AS costMs,
+        error_msg AS errorMsg,
+        create_time AS createTime
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="runId">
+        INSERT INTO flow_run (flow_id, flow_name_snapshot, trigger_type, init_vars, run_status, operator)
+        VALUES (#{flowId}, #{flowNameSnapshot}, #{triggerType}, #{initVars}, #{runStatus}, #{operator})
+    </insert>
+
+    <update id="updateFinish">
+        UPDATE flow_run
+        SET run_status = #{runStatus},
+            context_snapshot = #{contextSnapshot},
+            total_cost_ms = #{totalCostMs},
+            error_msg = #{errorMsg}
+        WHERE run_id = #{runId}
+    </update>
+
+    <select id="selectById" resultType="com.guonl.entity.FlowRun">
+        SELECT <include refid="cols"/>
+        FROM flow_run
+        WHERE run_id = #{runId}
+    </select>
+
+    <select id="selectPage" resultType="com.guonl.entity.FlowRun">
+        SELECT <include refid="cols"/>
+        FROM flow_run
+        <where>
+            <if test="flowId != null">flow_id = #{flowId}</if>
+        </where>
+        ORDER BY run_id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countPage" resultType="int">
+        SELECT COUNT(*)
+        FROM flow_run
+        <where>
+            <if test="flowId != null">flow_id = #{flowId}</if>
+        </where>
+    </select>
+
+    <insert id="insertStep" useGeneratedKeys="true" keyProperty="runStepId">
+        INSERT INTO flow_run_step (run_id, step_id, step_name, sort_order, request_snapshot,
+                                   response_status, response_body, extract_result, assert_result,
+                                   step_status, cost_ms, error_msg)
+        VALUES (#{runId}, #{stepId}, #{stepName}, #{sortOrder}, #{requestSnapshot},
+                #{responseStatus}, #{responseBody}, #{extractResult}, #{assertResult},
+                #{stepStatus}, #{costMs}, #{errorMsg})
+    </insert>
+
+    <update id="updateStep">
+        UPDATE flow_run_step
+        SET response_status = #{responseStatus},
+            response_body = #{responseBody},
+            extract_result = #{extractResult},
+            assert_result = #{assertResult},
+            step_status = #{stepStatus},
+            cost_ms = #{costMs},
+            error_msg = #{errorMsg}
+        WHERE run_step_id = #{runStepId}
+    </update>
+
+    <select id="selectStepsByRunId" resultType="com.guonl.entity.FlowRunStep">
+        SELECT <include refid="stepCols"/>
+        FROM flow_run_step
+        WHERE run_id = #{runId}
+        ORDER BY sort_order ASC, run_step_id ASC
+    </select>
+
+    <select id="selectStepById" resultType="com.guonl.entity.FlowRunStep">
+        SELECT <include refid="stepCols"/>
+        FROM flow_run_step
+        WHERE run_step_id = #{runStepId}
+    </select>
+
+    <select id="selectRecent" resultType="com.guonl.entity.FlowRun">
+        SELECT <include refid="cols"/>
+        FROM flow_run
+        ORDER BY run_id DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

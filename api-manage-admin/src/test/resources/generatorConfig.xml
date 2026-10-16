@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="DB2Tables" targetRuntime="MyBatis3">
+
+        <!-- 数据Model链式构建插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.ModelBuilderPlugin"/>
+        <!-- Example Criteria 增强插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.ExampleEnhancedPlugin"/>
+        <!-- 数据Model属性对应Column获取插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.ModelColumnPlugin"/>
+        <!-- 查询单条数据插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.SelectOneByExamplePlugin"/>
+        <!-- 批量插入插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.BatchInsertPlugin"/>
+        <!-- 官方ConstructorBased配置BUG临时修正插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.ConstructorBasedBugFixPlugin" />
+        <!-- Selective选择插入更新增强插件 -->
+        <plugin type="com.itfsw.mybatis.generator.plugins.SelectiveEnhancedPlugin"/>
+        <!-- 覆盖生成的xml-->
+        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin"/>
+
+        <!-- 去除自动生成的注释 -->
+        <commentGenerator>
+            <property name="suppressDate" value="true"/>
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <!-- 生发环境数据库配置:修改配置 -->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/db_api_manage?serverTimezone=UTC"
+                        userId="root"
+                        password="123456">
+            <!-- 不识别主键:https://my.oschina.net/u/2289161/blog/1589630 -->
+            <!--设置可以获取tables remarks信息, 解决生成文件缺少 xxxByPrimaryKey 的问题 -->
+            <property name="useInformationSchema" value="true"/>
+            <!--设置可以获取remarks信息-->
+<!--            <property name="remarks" value="true"/>-->
+        </jdbcConnection>
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- entity实体对象 -->
+        <javaModelGenerator targetPackage="com.guonl.entity"
+                            targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- *mapper.xml -->
+        <sqlMapGenerator targetPackage="mapper"
+                         targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <!-- dao层 -->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="com.guonl.dao"
+                             targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+
+        <!-- 表转代码：tableName：修改表名 -->
+<!--            <table tableName="api_project" domainObjectName="TApiProject"></table>-->
+<!--            <table tableName="api_controller" domainObjectName="TApiController"></table>-->
+            <!--<table tableName="api_url" domainObjectName="TApiUrl"></table>-->
+            <table tableName="api_url_doc" domainObjectName="TApiUrlDoc"></table>
+    </context>
+</generatorConfiguration>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guonl.dao.ApiGroupDao">
+
+    <sql id="cols">
+        group_id AS groupId, project_id AS projectId, controller_name AS controllerName,
+        controller_short_name AS controllerShortName, controller_desc AS controllerDesc,
+        controller_status AS controllerStatus, group_sort AS groupSort,
+        create_time AS createTime, update_time AS updateTime, del_flag AS delFlag
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="groupId">
+        INSERT INTO api_group (project_id, controller_name, controller_short_name, controller_desc, controller_status, group_sort, del_flag)
+        VALUES (#{projectId}, #{controllerName}, #{controllerShortName}, #{controllerDesc},
+                COALESCE(#{controllerStatus}, 1), COALESCE(#{groupSort}, 0), 0)
+    </insert>
+
+    <update id="update">
+        UPDATE api_group
+        <set>
+            <if test="controllerName != null">controller_name = #{controllerName},</if>
+            <if test="controllerShortName != null">controller_short_name = #{controllerShortName},</if>
+            <if test="controllerDesc != null">controller_desc = #{controllerDesc},</if>
+            <if test="controllerStatus != null">controller_status = #{controllerStatus},</if>
+            <if test="groupSort != null">group_sort = #{groupSort},</if>
+        </set>
+        WHERE group_id = #{groupId} AND del_flag = 0
+    </update>
+
+    <update id="logicDeleteById">
+        UPDATE api_group SET del_flag = 1 WHERE group_id = #{groupId}
+    </update>
+
+    <select id="selectById" resultType="com.guonl.entity.ApiGroup">
+        SELECT <include refid="cols"/> FROM api_group
+        WHERE group_id = #{groupId} AND del_flag = 0
+    </select>
+
+    <select id="selectByProject" resultType="com.guonl.entity.ApiGroup">
+        SELECT <include refid="cols"/> FROM api_group
+        WHERE project_id = #{projectId} AND del_flag = 0
+        ORDER BY group_sort, group_id
+    </select>
+
+    <select id="selectByName" resultType="com.guonl.entity.ApiGroup">
+        SELECT <include refid="cols"/> FROM api_group
+        WHERE project_id = #{projectId} AND controller_name = #{controllerName} AND del_flag = 0
+        LIMIT 1
+    </select>
+
+</mapper>

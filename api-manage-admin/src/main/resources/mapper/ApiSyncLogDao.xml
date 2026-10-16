@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guonl.dao.ApiSyncLogDao">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="syncId">
+        INSERT INTO api_sync_log (project_id, sync_status, add_count, update_count, offline_count, fail_msg, operator)
+        VALUES (#{projectId}, #{syncStatus}, COALESCE(#{addCount}, 0), COALESCE(#{updateCount}, 0),
+                COALESCE(#{offlineCount}, 0), #{failMsg}, #{operator})
+    </insert>
+
+    <select id="selectByProject" resultType="com.guonl.entity.ApiSyncLog">
+        SELECT sync_id AS syncId, project_id AS projectId, sync_status AS syncStatus,
+               add_count AS addCount, update_count AS updateCount, offline_count AS offlineCount,
+               fail_msg AS failMsg, operator, create_time AS createTime
+        FROM api_sync_log
+        WHERE project_id = #{projectId}
+        ORDER BY sync_id DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

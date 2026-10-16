@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guonl.dao.FlowStepDao">
+
+    <sql id="cols">
+        step_id AS stepId,
+        flow_id AS flowId,
+        step_name AS stepName,
+        sort_order AS sortOrder,
+        step_type AS stepType,
+        url_id AS urlId,
+        request_method AS requestMethod,
+        request_url AS requestUrl,
+        request_headers AS requestHeaders,
+        request_query AS requestQuery,
+        body_type AS bodyType,
+        request_body AS requestBody,
+        extract_rules AS extractRules,
+        assertions AS assertions,
+        on_failure AS onFailure,
+        delay_ms AS delayMs,
+        enabled AS enabled,
+        create_time AS createTime,
+        update_time AS updateTime,
+        del_flag AS delFlag
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="stepId">
+        INSERT INTO flow_step (flow_id, step_name, sort_order, step_type, url_id,
+                               request_method, request_url, request_headers, request_query,
+                               body_type, request_body, extract_rules, assertions,
+                               on_failure, delay_ms, enabled)
+        VALUES (#{flowId}, #{stepName}, #{sortOrder}, #{stepType}, #{urlId},
+                #{requestMethod}, #{requestUrl}, #{requestHeaders}, #{requestQuery},
+                #{bodyType}, #{requestBody}, #{extractRules}, #{assertions},
+                #{onFailure}, #{delayMs}, #{enabled})
+    </insert>
+
+    <delete id="deleteByFlowId">
+        DELETE FROM flow_step WHERE flow_id = #{flowId}
+    </delete>
+
+    <select id="listByFlowId" resultType="com.guonl.entity.FlowStep">
+        SELECT <include refid="cols"/>
+        FROM flow_step
+        WHERE flow_id = #{flowId} AND del_flag = '0'
+        ORDER BY sort_order ASC, step_id ASC
+    </select>
+</mapper>

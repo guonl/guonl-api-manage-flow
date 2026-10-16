@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guonl.dao.ApiTestRecordDao">
+
+    <sql id="cols">
+        record_id AS recordId, project_id AS projectId, env_id AS envId, url_id AS urlId,
+        request_method AS requestMethod, request_url AS requestUrl, request_headers AS requestHeaders,
+        request_query AS requestQuery, request_body AS requestBody, body_type AS bodyType,
+        response_status AS responseStatus, response_headers AS responseHeaders, response_body AS responseBody,
+        cost_ms AS costMs, success, error_msg AS errorMsg, operator, create_time AS createTime
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="recordId">
+        INSERT INTO api_test_record (project_id, env_id, url_id, request_method, request_url,
+                                     request_headers, request_query, request_body, body_type,
+                                     response_status, response_headers, response_body,
+                                     cost_ms, success, error_msg, operator)
+        VALUES (#{projectId}, #{envId}, #{urlId}, #{requestMethod}, #{requestUrl},
+                #{requestHeaders}, #{requestQuery}, #{requestBody}, #{bodyType},
+                #{responseStatus}, #{responseHeaders}, #{responseBody},
+                #{costMs}, #{success}, #{errorMsg}, #{operator})
+    </insert>
+
+    <select id="selectPage" resultType="com.guonl.entity.ApiTestRecord">
+        SELECT <include refid="cols"/>
+        FROM api_test_record
+        <where>
+            <if test="urlId != null">AND url_id = #{urlId}</if>
+            <if test="projectId != null">AND project_id = #{projectId}</if>
+        </where>
+        ORDER BY record_id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countPage" resultType="int">
+        SELECT COUNT(*) FROM api_test_record
+        <where>
+            <if test="urlId != null">AND url_id = #{urlId}</if>
+            <if test="projectId != null">AND project_id = #{projectId}</if>
+        </where>
+    </select>
+
+    <select id="selectRecent" resultType="com.guonl.entity.ApiTestRecord">
+        SELECT <include refid="cols"/>
+        FROM api_test_record
+        ORDER BY record_id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectById" resultType="com.guonl.entity.ApiTestRecord">
+        SELECT <include refid="cols"/>
+        FROM api_test_record
+        WHERE record_id = #{recordId}
+    </select>
+
+    <select id="selectLatestByUrlId" resultType="com.guonl.entity.ApiTestRecord">
+        SELECT <include refid="cols"/>
+        FROM api_test_record
+        WHERE url_id = #{urlId}
+        ORDER BY record_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="countToday" resultType="long">
+        SELECT COUNT(*) FROM api_test_record WHERE create_time &gt;= CURDATE()
+    </select>
+
+    <select id="countTodayFail" resultType="long">
+        SELECT COUNT(*) FROM api_test_record WHERE success = 0 AND create_time &gt;= CURDATE()
+    </select>
+
+</mapper>

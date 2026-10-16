@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guonl.dao.ApiUrlDocDao">
+
+    <sql id="cols">
+        url_id AS urlId, request_headers AS requestHeaders, query_params AS queryParams,
+        success_resp_example AS successRespExample, fail_resp_example AS failRespExample,
+        remark, create_time AS createTime, update_time AS updateTime, del_flag AS delFlag
+    </sql>
+
+    <insert id="upsert">
+        INSERT INTO api_url_doc (url_id, request_headers, query_params, success_resp_example, fail_resp_example, remark, del_flag)
+        VALUES (#{urlId}, #{requestHeaders}, #{queryParams}, #{successRespExample}, #{failRespExample}, #{remark}, 0)
+        ON DUPLICATE KEY UPDATE
+            request_headers = VALUES(request_headers),
+            query_params = VALUES(query_params),
+            success_resp_example = VALUES(success_resp_example),
+            fail_resp_example = VALUES(fail_resp_example),
+            remark = VALUES(remark),
+            del_flag = 0
+    </insert>
+
+    <select id="selectByUrlId" resultType="com.guonl.entity.ApiUrlDoc">
+        SELECT <include refid="cols"/> FROM api_url_doc
+        WHERE url_id = #{urlId} AND del_flag = 0
+    </select>
+
+</mapper>

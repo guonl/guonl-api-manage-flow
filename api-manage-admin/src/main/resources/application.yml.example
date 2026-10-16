@@ -1,0 +1,57 @@
+# ============================================================
+# 配置示例文件：复制为 application.yml 并填入真实值后使用
+#   cp application.yml.example application.yml
+# application.yml 不应提交到仓库（含账号密码等敏感信息）
+# ============================================================
+server:
+  port: 8081
+
+spring:
+  application:
+    name: api-manage-admin
+  # AI 配置存于 sys_config，运行期动态构建 ChatClient，排除 classpath 自动装配
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration
+  servlet:
+    session:
+      timeout: 12h
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # TODO: 替换为你的 MySQL 地址与库名
+    url: jdbc:mysql://<YOUR_MYSQL_HOST>:3306/<YOUR_DB_NAME>?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: <YOUR_DB_USERNAME>
+    password: <YOUR_DB_PASSWORD>
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 10
+      connection-timeout: 10000
+      max-lifetime: 1800000
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com.guonl.dao: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+api-manage:
+  debug:
+    # 调试代理超时（毫秒）
+    connect-timeout-ms: 5000
+    read-timeout-ms: 30000
+    # 调试/流程历史响应体记录截断阈值（字节）
+    max-body-log-size: 65536

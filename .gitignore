@@ -1,0 +1,6 @@
+/.idea/
+/api-manage-admin/src/main/resources/application.yml
+.DS_Store
+/api-manage-admin/frontend/node_modules/
+/api-manage-admin/target/
+/api-manage-tools/target/

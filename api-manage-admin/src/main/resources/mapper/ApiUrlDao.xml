@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guonl.dao.ApiUrlDao">
+
+    <sql id="cols">
+        url_id AS urlId, group_id AS groupId, project_id AS projectId, request_url AS requestUrl,
+        method_name AS methodName, method_type AS methodType, method_content_type AS methodContentType,
+        request_param_map AS requestParamMap, return_param_class AS returnParamClass,
+        return_param_map AS returnParamMap, url_status AS urlStatus, url_label AS urlLabel,
+        method_desc AS methodDesc, source_type AS sourceType, last_sync_time AS lastSyncTime,
+        create_time AS createTime, update_time AS updateTime, del_flag AS delFlag
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="urlId">
+        INSERT INTO api_url (group_id, project_id, request_url, method_name, method_type, method_content_type,
+                             request_param_map, return_param_class, return_param_map, url_status, url_label,
+                             method_desc, source_type, del_flag)
+        VALUES (#{groupId}, #{projectId}, #{requestUrl}, #{methodName}, #{methodType},
+                COALESCE(#{methodContentType}, 'none'), #{requestParamMap}, #{returnParamClass},
+                #{returnParamMap}, COALESCE(#{urlStatus}, 1), #{urlLabel}, #{methodDesc},
+                COALESCE(#{sourceType}, 1), 0)
+    </insert>
+
+    <update id="update">
+        UPDATE api_url
+        <set>
+            <if test="requestUrl != null">request_url = #{requestUrl},</if>
+            <if test="methodName != null">method_name = #{methodName},</if>
+            <if test="methodType != null">method_type = #{methodType},</if>
+            <if test="methodContentType != null">method_content_type = #{methodContentType},</if>
+            <if test="requestParamMap != null">request_param_map = #{requestParamMap},</if>
+            <if test="returnParamClass != null">return_param_class = #{returnParamClass},</if>
+            <if test="returnParamMap != null">return_param_map = #{returnParamMap},</if>
+            <if test="urlStatus != null">url_status = #{urlStatus},</if>
+            <if test="urlLabel != null">url_label = #{urlLabel},</if>
+            <if test="methodDesc != null">method_desc = #{methodDesc},</if>
+            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="lastSyncTime != null">last_sync_time = #{lastSyncTime},</if>
+        </set>
+        WHERE url_id = #{urlId} AND del_flag = 0
+    </update>
+
+    <update id="logicDeleteById">
+        UPDATE api_url SET del_flag = 1 WHERE url_id = #{urlId}
+    </update>
+
+    <update id="markSyncTime">
+        UPDATE api_url SET last_sync_time = NOW(), source_type = 1 WHERE url_id = #{urlId}
+    </update>
+
+    <select id="selectById" resultType="com.guonl.entity.ApiUrl">
+        SELECT <include refid="cols"/> FROM api_url
+        WHERE url_id = #{urlId} AND del_flag = 0
+    </select>
+
+    <select id="selectByGroup" resultType="com.guonl.entity.ApiUrl">
+        SELECT <include refid="cols"/> FROM api_url
+        WHERE group_id = #{groupId} AND del_flag = 0
+        ORDER BY url_id
+    </select>
+
+    <select id="selectByProject" resultType="com.guonl.entity.ApiUrl">
+        SELECT <include refid="cols"/> FROM api_url
+        WHERE project_id = #{projectId} AND del_flag = 0
+        ORDER BY group_id, url_id
+    </select>
+
+    <select id="selectAllByGroup" resultType="com.guonl.entity.ApiUrl">
+        SELECT <include refid="cols"/> FROM api_url
+        WHERE group_id = #{groupId} AND del_flag = 0
+    </select>
+
+    <select id="selectByGroupAndUrl" resultType="com.guonl.entity.ApiUrl">
+        SELECT <include refid="cols"/> FROM api_url
+        WHERE group_id = #{groupId} AND method_type = #{methodType} AND request_url = #{requestUrl} AND del_flag = 0
+        LIMIT 1
+    </select>
+
+    <select id="search" resultType="com.guonl.entity.ApiUrl">
+        SELECT <include refid="cols"/> FROM api_url
+        WHERE project_id = #{projectId} AND del_flag = 0
+        <if test="keyword != null and keyword != ''">
+            AND (method_name LIKE CONCAT('%', #{keyword}, '%')
+                 OR request_url LIKE CONCAT('%', #{keyword}, '%')
+                 OR method_desc LIKE CONCAT('%', #{keyword}, '%')
+                 OR url_label LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY url_id
+        LIMIT 200
+    </select>
+
+    <select id="countByGroup" resultType="long">
+        SELECT COUNT(*) FROM api_url WHERE group_id = #{groupId} AND del_flag = 0
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM api_url WHERE del_flag = 0
+    </select>
+
+</mapper>

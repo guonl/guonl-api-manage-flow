@@ -1,0 +1,17 @@
+:root {
+  --apiflow-primary: #409eff;
+}
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; padding: 0; }
+body {
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+  background: var(--el-bg-color-page);
+  color: var(--el-text-color-primary);
+}
+.method-tag { font-family: Menlo, Consolas, monospace; font-weight: 600; min-width: 52px; text-align: center; }
+.m-get { background: #67c23a; color: #fff; }
+.m-post { background: #409eff; color: #fff; }
+.m-put { background: #e6a23c; color: #fff; }
+.m-delete { background: #f56c6c; color: #fff; }
+.m-patch { background: #909399; color: #fff; }
+.url-text { font-family: Menlo, Consolas, monospace; font-size: 12px; }
